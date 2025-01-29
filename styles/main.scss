@@ -10,3 +10,22 @@
 @use 'blocks/button';
 @use 'blocks/burger-button';
 @use 'blocks/header';
+@use 'blocks/badge';
+@use 'blocks/soc1als';
+@use 'blocks/footer';
+@use 'blocks/metrics';
+@use 'blocks/team';
+@use 'blocks/resources-preview';
+@use 'blocks/advantage-card';
+@use 'blocks/hero';
+@use 'blocks/tag';
+@use 'blocks/section';
+@use 'blocks/list';
+@use 'blocks/tile';
+@use 'blocks/card';
+
+.header,
+main > *:not(:last-child),
+.footer {
+    display: none !important;
+}
