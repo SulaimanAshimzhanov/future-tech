@@ -12,7 +12,7 @@
         --itemPaddingX: #{rem(80)};
 
         @include laptop {
-            --itemPaddingX: #{rem(80)};
+            --itemPaddingX: #{rem(50)};
         }
 
         @include mobile-above {
@@ -48,7 +48,7 @@
         --columns: 3;
         --itemPaddingX: #{rem(50)};
 
-        // column-gap: calc(var(--itemPaddingX) * 2);
+        column-gap: calc(var(--itemPaddingX) * 2);
 
         @include laptop {
             --itemPaddingX: #{rem(40)};
@@ -59,19 +59,22 @@
                 // Элементы в 1-й и 2-й колонке
                 &:nth-child(3n - 2),
                 &:nth-child(3n - 1) {
-                    padding-right: var(--itemPaddingX);
-                    border-right: var(--border);
+                    position: relative;
+
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: calc(100% + var(--itemPaddingX));
+                        width: rem(1);
+                        height: 100%;
+                        background-color: var(--color-dark-15);
+                    }
                 }
 
                 //Элементы во 2-й колонке
                 &:nth-child(3n - 1) {
                     @include full-vw-centered-line(bottom)
-                }
-
-                //Элементы во 2-й и 3-й колонке
-                &:nth-child(3n - 1),
-                &:nth-child(3n) {
-                    padding-left: var(--itemPaddingX);
                 }
             }
         }

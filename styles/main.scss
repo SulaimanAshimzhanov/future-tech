@@ -5,6 +5,7 @@
 @use 'globals';
 
 
+@use 'blocks/expandable-content';
 @use 'blocks/icon';
 @use 'blocks/logo';
 @use 'blocks/button';
@@ -41,8 +42,7 @@
 @use 'blocks/video-card';
 @use 'blocks/table-of-contents';
 @use 'blocks/blog-details';
-
-
+@use 'blocks/report-card';
 
 .header,
 main > *:not(:last-child),
