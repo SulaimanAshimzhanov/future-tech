@@ -1,4 +1,5 @@
-import BaseComponent from "./BaseComponent"
+import BaseComponent from "./BaseComponent.js"
+import MatchMedia from "./MatchMedia.js"
 
 const rootSelector = '[data-js-select]'
 
@@ -44,6 +45,148 @@ class Select extends BaseComponent {
             selectedOptionElement: this.optionElements[this.originalControlElement.selectedIndex]
         })
         this.fixDropdownPosition()
+        this.updateTabIndexes()
+        this.bindEvents()
+    }
+
+    updateUI() {
+        const {
+            isExpanded,
+            currentOptionIndex,
+            selectedOptionElement
+        } = this.state
+
+        const newSelectOptionValue = selectedOptionElement.textContent.trim()
+
+        const updateOriginalControl = () => {
+            this.originalControlElement.value = newSelectOptionValue
+        }
+
+        const updateButton = () => {
+            this.buttonElement.textContent = newSelectOptionValue
+            this.buttonElement.classList.toggle(this.stateClasses.isExpanded, isExpanded)
+            this.buttonElement.setAttribute(this.stateAtributes.ariaExpanded, isExpanded)
+            this.buttonElement.setAttribute(
+                this.stateAtributes.ariaActiveDescendant,
+                this.optionElements[currentOptionIndex].id
+            )
+        }
+
+        const updateDropdown = () => {
+            this.dropdownElement.classList.toggle(this.stateClasses.isExpanded, isExpanded)
+        }
+
+        const updateOptions = () => {
+            this.optionElements.forEach((optionElement, index) => {
+                const isCurrent = currentOptionIndex === index
+                const isSelected = selectedOptionElement === optionElement
+
+                optionElement.classList.toggle(this.stateClasses.isCurrent, isCurrent)
+                optionElement.classList.toggle(this.stateClasses.isSelected, isSelected)
+                optionElement.classList.toggle(this.stateAtributes.ariaSelected, isSelected)
+            })
+        }
+
+        updateOriginalControl()
+        updateButton()
+        updateDropdown()
+        updateOptions()
+    }
+
+    toggleExpandedState() {
+        this.state.isExpanded = !this.state.isExpanded
+    }
+
+    expand() {
+        this.state.isExpanded = true
+    }
+
+    collapse() {
+        this.state.isExpanded = false
+    }
+
+    fixDropdownPosition() {
+        const viewportWidth = document.documentElement.clientWidth
+        const halfViewportX = viewportWidth / 2
+        const { width, x } = this.buttonElement.getBoundingClientRect()
+        const buttonCenterX = x + width / 2
+        const isButtonOnTheLeftViewportSide = buttonCenterX < halfViewportX
+
+        this.dropdownElement.classList.toggle(
+            this.stateClasses.isOnTheLeftSide,
+            isButtonOnTheLeftViewportSide
+        )
+
+        this.dropdownElement.classList.toggle(
+            this.stateClasses.isOnTheRightSide,
+            isButtonOnTheLeftViewportSide
+        )
+    }
+
+    updateTabIndexes(isMobileDevice = MatchMedia.mobile.matches) {
+        this.originalControlElement.tabIndex = isMobileDevice ? 0 : -1
+        this.buttonElement.tabIndex = isMobileDevice ? -1 : 0
+    }
+
+    onButtonClick = () => {
+        this.toggleExpandedState()
+    }
+
+    onClick = (event) => {
+        const { target } = event
+
+        const isButtonClick = target === this.buttonElement
+        const isOutsideDropdownClick = 
+            target.closest(this.selectors.dropdown) !== this.dropdownElement
+
+        if(!isButtonClick && isOutsideDropdownClick) {
+            this.collapse()
+            return
+        }
+
+        const isOptionClick = target.matches(this.selectors.option)
+
+        if(isOptionClick) {
+            this.state.selectedOptionElement = target
+            this.state.currentOptionIndex = [...this.optionElements]
+                .findIndex((optionElement) => optionElement === target)
+            this.collapse()
+        }
+    }
+
+    onArrowUpKeyDown = () => {}
+
+    onArrowDownKeyDown = () => {}
+
+    onSpaceKeyDown = () => {}
+
+    onEnterKeyDown = () => {}
+
+    onKeyDown = (event) => {
+        const { code } = event
+
+        const action = {
+            ArrowUp: this.onArrowUpKeyDown,
+            ArrowDown: this.onArrowDownKeyDown,
+            Space: this.onSpaceKeyDown,
+            Enter: this.onEnterKeyDown,
+        }[code]
+
+        if(action) {
+            event.preventDefault();
+            action()
+        }
+    }
+
+    onMobileMatchMediaChange = (event) => {
+        this.updateTabIndexes(event.matches)
+    }
+
+    bindEvents() {
+        MatchMedia.mobile.addEventListener('change', this.onMobileMatchMediaChange)
+        this.buttonElement.addEventListener('click', this.onButtonClick)
+        document.addEventListener('click', this.onClick)
+        this.rootElement.addEventListener('keydown', this.onKeyDown)
     }
 }
 
